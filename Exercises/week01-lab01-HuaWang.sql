@@ -44,7 +44,7 @@ FROM Semester
 ORDER BY days ASC;
 
 
--- Exercises for section 2
+-- Exercises for section 3
 -- 3.1
 SELECT PersonID, FullName
 FROM Person
