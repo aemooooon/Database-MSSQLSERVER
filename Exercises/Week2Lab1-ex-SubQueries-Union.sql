@@ -6,7 +6,13 @@ Exercises for section 6 Subqueries
 e6.1	List the paper with the lowest average enrolment per instance. Ignore all papers with no enrolments.
 	Display the paper ID, paper name and average enrolment count.
 */
-
+SELECT TOP 1 WITH TIES
+    p.PaperID, p.PaperName, AVG(subTable.papercounts) AS [Average Enrolment]
+From (SELECT PaperID, COUNT(PersonID) AS papercounts
+    FROM Enrolment
+    GROUP BY PaperID) AS subTable JOIN Paper AS p ON p.PaperID=subTable.PaperID
+GROUP BY p.PaperID, p.PaperName
+ORDER BY [Average Enrolment] ASC;
 /*
 e6.2	List the paper with the highest average enrolment per instance. 
 	Display the paper ID, paper name and average enrolment count.
