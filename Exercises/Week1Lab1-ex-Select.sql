@@ -47,7 +47,7 @@ Exercises for section 2
 	that have an ID not starting with the characters 'IT'
 
 3.4	Develop a statement that returns the full name of every person 
-	who has a given name with at least 7 characters 
+	who has a given name with at least 5 characters 
 	and a family name beginning with a letter in the first half of the alphabet (A to M)
 
 */

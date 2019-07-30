@@ -43,11 +43,14 @@ GROUP BY p.PaperID;
 
 -- 5.2
 SELECT p.PaperID, p.PaperName, COUNT(e.PersonID) AS [Enrolment Count]
-FROM Paper AS p JOIN Enrolment AS e ON p.PaperID=e.PaperID
+FROM Paper AS p JOIN Enrolment AS e ON p.PaperID=e.PaperID JOIN Semester AS s ON s.SemesterID=e.SemesterID
+WHERE YEAR(s.StartDate)<2019
 GROUP BY p.PaperID,p.PaperName;
 
 -- 5.3
---So confused to 5.2
+SELECT p.PaperID, p.PaperName, COUNT(e.PersonID) AS [Enrolment Count]
+FROM Paper AS p JOIN Enrolment AS e ON p.PaperID=e.PaperID
+GROUP BY p.PaperID,p.PaperName;
 
 -- 5.4
 SELECT s.StartDate, s.EndDate, p.PaperName, COUNT(e.PersonID) AS EnrolmentCount
