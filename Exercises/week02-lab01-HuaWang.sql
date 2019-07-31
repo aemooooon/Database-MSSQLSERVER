@@ -64,6 +64,10 @@ FROM (
         ORDER BY [Average Enrolment] ASC)) AS result;
 
 -- e6.4
+--e6.4	Which paper attracts people with long names? Find the background statistics 
+--	to support a hypothesis test: for each paper with enrolments calculate the mean full name length, 
+--	sample standard deviation full name length & sample size (that is: number of enrolments).
+SELECT PaperID, COUNT(PersonID) as rcs FROM Enrolment GROUP BY PaperID ORDER BY rcs DESC
 
 
 -- e6.5
@@ -79,15 +83,27 @@ AS results
 ORDER BY counts DESC;
 
 -- e7.1
-SELECT PersonID, 'F', SemesterID FROM Enrolment WHERE LEFT(SemesterID,4)='2019' AND PaperID='IN605'
+--e7.1	In one result, list all the people who enrolled in a paper delivered during 2019 and
+--	all the people who have enrolled in IN605. 
+--	The result should have three columns: PersonID, Full Name and the reason the person
+--	is on the list - either 'enrolled in 2019' or 'enrolled in IN605'
+
+SELECT PersonID, 'F', SemesterID, PaperID FROM Enrolment WHERE LEFT(SemesterID,4)='2019' AND PaperID='IN605'
 UNION 
-SELECT PersonID, FullName as f, 'S' FROM Person
+SELECT PersonID, FullName as f, 'S', 'pid' FROM Person
+
+SELECT e.PersonID, p.FullName, CONCAT('enrolled in ', e.SemesterID, ' and ', e.PaperID) AS [Reason]
+FROM Enrolment AS e JOIN Person AS p 
+ON e.PersonID=p.PersonID 
+WHERE LEFT(SemesterID,4)='2019' AND PaperID='IN605'
 
 -- e7.2
-SELECT CONCAT(FullName,PaperName) AS [who takes paper], LEN(CONCAT(PaperName,FullName)) as [Length]
-FROM (        
-    SELECT PaperName, 'F' as FullName
-        FROM Paper
-    UNION
-        SELECT 'P' as PaperName, FullName
-        FROM Person) as r
+--e7.2	Produce one resultset with two columns. List the all Paper Names and all the Person Full Names in one column.
+--	In the other column calculate the number of characters in the name.
+--	Sort the result with the longest name first.
+
+SELECT FullName, LEN(FullName) FROM 
+((SELECT FullName FROM Person JOIN Enrolment ON Person.PersonID=Enrolment.PersonID)
+UNION
+(SELECT PaperName FROM Paper JOIN Enrolment ON Paper.PaperID=Enrolment.PaperID)) AS r
+ORDER BY LEN(FullName) DESC
