@@ -23,8 +23,7 @@ FROM (
                 SELECT TOP 1 WITH TIES
             p.PaperID, p.PaperName, s.StartDate AS [Starting Date]
         FROM Paper p JOIN PaperInstance AS [pi] ON Paper.PaperID=PaperInstance.PaperID JOIN Semester AS s ON PaperInstance.SemesterID=Semester.SemesterID
-        GROUP BY p.PaperID, p.PaperName
-        ORDER BY [Starting Date] ASC
+        ORDER BY [Starting Date] ASC GROUP BY p.PaperID, p.PaperName
         )
 
     UNION
@@ -68,7 +67,7 @@ FROM (
 
 
 -- e6.5
-SELECT SemesterID, results.counts, RANK
+SELECT SemesterID, results.counts AS [Enrolment Count], RANK
 () OVER
 (ORDER BY counts DESC) AS Rank
 FROM
@@ -80,20 +79,15 @@ AS results
 ORDER BY counts DESC;
 
 -- e7.1
-SELECT PersonID, FullName, PaperID AS [Enrolled in 2009]
-FROM (        
-                                                    SELECT PersonID, FullName
-        FROM Person
-    UNION
-        SELECT PersonID, PaperID
-        FROM Enrolment) AS Result
+SELECT PersonID, 'F', SemesterID FROM Enrolment WHERE LEFT(SemesterID,4)='2019' AND PaperID='IN605'
+UNION 
+SELECT PersonID, FullName as f, 'S' FROM Person
 
 -- e7.2
-SELECT CONCAT(PaperName,FullName) AS Names, LEN(Names)
+SELECT CONCAT(FullName,PaperName) AS [who takes paper], LEN(CONCAT(PaperName,FullName)) as [Length]
 FROM (        
-                                                            SELECT PaperName
+    SELECT PaperName, 'F' as FullName
         FROM Paper
     UNION
-        SELECT FullName
-        FROM Person) AS ResultSet
-ORDER BY LEN(Names) DESC;
+        SELECT 'P' as PaperName, FullName
+        FROM Person) as r
