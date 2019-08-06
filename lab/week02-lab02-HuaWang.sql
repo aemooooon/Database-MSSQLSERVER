@@ -35,6 +35,9 @@ INSERT INTO PaperInstance (PaperID,SemesterID) SELECT p.PaperID, '2021S1' FROM P
 --		1. create paper, semester and paper instance data
 --		2. Find IN605/2019S2 enrolments that are not in IN612
 --		3. insert new enrolments
+DELETE FROM Paper WHERE PaperID='IN238';
+DELETE FROM Semester WHERE SemesterID='2020S1';
+DELETE FROM PaperInstance WHERE PaperID='IN238';
 INSERT INTO Paper (PaperID,PaperName) VALUES ('IN238','Level 2 English');
 INSERT INTO Semester (SemesterID,StartDate,EndDate) VALUES ('2020S1','2020-02-24','2020-06-27');
 INSERT INTO PaperInstance (PaperID,SemesterID) VALUES ('IN238','2020S1'),('IN238','2019S2');
