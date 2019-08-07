@@ -22,6 +22,9 @@ UPDATE Semester SET EndDate=DATEADD(DAY,14,EndDate) WHERE DATEDIFF(DAY,StartDate
 --		created by exercise e8.4]: all students with short names [length of FullName
 --		is less than 12 characters] must have their enrolment moved 
 --		from 2020S1 to 2019S2. Write a statement that will perform this enrolment change.
+UPDATE Enrolment SET SemesterID='2020S1' FROM
+(SELECT p.PersonID,e.PaperID FROM Enrolment e JOIN Person p ON e.PersonID=p.PersonID WHERE e.PaperID='IN238' AND e.SemesterID='2019S2' AND LEN(p.FullName)<12) AS r
+WHERE Enrolment.PersonID=r.PersonID AND Enrolment.PaperID=r.PaperID
 
 
 --Exercises for section 10 : DELETE
