@@ -64,7 +64,9 @@ GROUP BY p.PaperID;
 --		1. create paper, semester and paper instance data
 --		2. Find IN605/2019S2 enrolments that are not in IN612
 --		3. insert new enrolments
-<<<<<<< HEAD
+DELETE FROM Paper WHERE PaperID='IN238';
+DELETE FROM Semester WHERE SemesterID='2020S1';
+DELETE FROM PaperInstance WHERE PaperID='IN238';
 INSERT INTO Paper
     (PaperID,PaperName)
 VALUES
@@ -83,12 +85,3 @@ INSERT INTO Enrolment
 SELECT DISTINCT 'IN238', '2019S2', PersonID
 FROM Enrolment e JOIN Paper p ON e.PaperID=p.PaperID
 WHERE e.PaperID = 'IN605' AND e.PaperID != 'IN612';
-=======
-DELETE FROM Paper WHERE PaperID='IN238';
-DELETE FROM Semester WHERE SemesterID='2020S1';
-DELETE FROM PaperInstance WHERE PaperID='IN238';
-INSERT INTO Paper (PaperID,PaperName) VALUES ('IN238','Level 2 English');
-INSERT INTO Semester (SemesterID,StartDate,EndDate) VALUES ('2020S1','2020-02-24','2020-06-27');
-INSERT INTO PaperInstance (PaperID,SemesterID) VALUES ('IN238','2020S1'),('IN238','2019S2');
-INSERT INTO Enrolment (PaperID,SemesterID,PersonID) SELECT DISTINCT 'IN238','2019S2',PersonID FROM Enrolment e JOIN Paper p ON e.PaperID=p.PaperID WHERE e.PaperID = 'IN605' AND e.PaperID != 'IN612';
->>>>>>> 325c14c8ba978e10fbe666a112cc9094f8aa76a5

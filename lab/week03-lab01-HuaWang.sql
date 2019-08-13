@@ -23,7 +23,9 @@ UPDATE Semester SET EndDate=DATEADD(DAY,14,EndDate) WHERE DATEDIFF(DAY,StartDate
 --		is less than 12 characters] must have their enrolment moved 
 --		from 2020S1 to 2019S2. Write a statement that will perform this enrolment change.
 UPDATE Enrolment SET SemesterID='2020S1' FROM
-(SELECT p.PersonID,e.PaperID FROM Enrolment e JOIN Person p ON e.PersonID=p.PersonID WHERE e.PaperID='IN238' AND e.SemesterID='2019S2' AND LEN(p.FullName)<12) AS r
+    (SELECT p.PersonID, e.PaperID
+    FROM Enrolment e JOIN Person p ON e.PersonID=p.PersonID
+    WHERE e.PaperID='IN238' AND e.SemesterID='2019S2' AND LEN(p.FullName)<12) AS r
 WHERE Enrolment.PersonID=r.PersonID AND Enrolment.PaperID=r.PaperID
 
 
@@ -33,9 +35,12 @@ WHERE Enrolment.PersonID=r.PersonID AND Enrolment.PaperID=r.PaperID
 
 --e10.1	Write a statement to delete all enrolments for IN238 Extraspecial Topic in semester 2020S11.
 DELETE FROM Enrolment WHERE PaperID='IN238' AND SemesterID='2020S11';
-		
+
 
 --e10.2	Delete all PaperInstances that have no enrolments.
 DELETE PaperInstance
-SELECT PaperID FROM Paper WHERE PaperID NOT IN (SELECT PaperID FROM Enrolment)
+SELECT PaperID
+FROM Paper
+WHERE PaperID NOT IN (SELECT PaperID
+FROM Enrolment)
 		
