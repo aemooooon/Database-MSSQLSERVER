@@ -16,7 +16,7 @@ e9.2	For all the semesters that start after 01-June-2018, alter the end date
 		to be 14 days later than currently recorded.
 
 e9.3	Imagine a strange enrolment requirement regarding the students
-		enrolled in IN328 for 2020S1 [Ensure your database has all the records
+		enrolled in IN238 for 2020S1 [Ensure your database has all the records
 		created by exercise e8.4]: all students with short names [length of FullName
 		is less than 12 characters] must have their enrolment moved 
 		from 2020S1 to 2019S2. Write a statement that will perform this enrolment change.
