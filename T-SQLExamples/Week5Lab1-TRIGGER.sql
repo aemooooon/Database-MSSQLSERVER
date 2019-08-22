@@ -220,7 +220,7 @@
 
 	--perform an insert
 	insert Words (theWord) values ('whale')
-	insert Words (aValue) values (22)	
+	insert Words (aValue) values (22)
 
 	--check data
 	select * from Words
@@ -280,6 +280,6 @@
 
 --	now test it by modifying data on the Words table
 Select * from words
-Update Words set theMeaning = 'Hello World' where theID = 1002
+Update Words set theMeaning = 'Hello World' where theID = 1001
 Select * from words
 
