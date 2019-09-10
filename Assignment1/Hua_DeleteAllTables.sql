@@ -1,0 +1,23 @@
+DROP TABLE IF EXISTS dbo.AssemblySubcomponent
+GO
+
+DROP TABLE IF EXISTS dbo.QuoteComponent
+GO
+
+DROP TABLE IF EXISTS dbo.Component
+GO
+
+DROP TABLE IF EXISTS dbo.Quote
+GO
+
+DROP TABLE IF EXISTS dbo.Category
+GO
+
+DROP TABLE IF EXISTS dbo.Supplier
+GO
+
+DROP TABLE IF EXISTS dbo.Customer
+GO
+
+DROP TABLE IF EXISTS dbo.Contact
+GO
