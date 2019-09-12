@@ -1,4 +1,3 @@
-/*  START  */
 
 /*
 Create data on QuoteCompilation database to support
@@ -17,7 +16,14 @@ you must have implemented the database as specified on the assignment ERD
 --create proc addSubComponent
 -- Using variables : @ABC int, @XYZ int, @CDBD int, @BITManf int- capture the ContactID
 
+USE [wangh21_IN705Assignment1]
+
 --create categories
+DECLARE @ABC INT
+DECLARE @XYZ INT
+DECLARE @CDBD INT
+DECLARE @BITManf INT
+
 insert Category (CategoryName) values ('Black Steel')
 insert Category (CategoryName) values ('Assembly')
 insert Category (CategoryName) values ('Fixings')
@@ -31,22 +37,27 @@ insert Category (CategoryName) values ('Labour')
 
 insert Contact (ContactName, ContactPostalAddress, ContactWWW, ContactEmail, ContactPhone, ContactFax)
 values ('ABC Ltd.', '17 George Street, Dunedin', 'www.abc.co.nz', 'info@abc.co.nz', '	471 2345', null)
-
+SET @ABC = @@IDENTITY
+INSERT Supplier (SupplierID) VALUES (@ABC)
 
 insert Contact (ContactName, ContactPostalAddress, ContactWWW, ContactEmail, ContactPhone, ContactFax)
 values ('XYZ Ltd.', '23 Princes Street, Dunedin', null, 'xyz@paradise.net.nz', '4798765', '4798760')
-
+SET @XYZ = @@IDENTITY
+INSERT Supplier (SupplierID) VALUES (@XYZ)
 
 insert Contact (ContactName, ContactPostalAddress, ContactWWW, ContactEmail, ContactPhone, ContactFax)
-values ('CDBD Pty Ltd.',	'Lot 27, Kangaroo Estate, Bondi, NSW, Australia 2026', '	www.cdbd.com.au', 'support@cdbd.com.au', '+61 (2) 9130 1234', null)
-
+values ('CDBD Pty Ltd.', 'Lot 27, Kangaroo Estate, Bondi, NSW, Australia 2026', 'www.cdbd.com.au', 'support@cdbd.com.au', '+61 (2) 9130 1234', null)
+SET @CDBD = @@IDENTITY
+INSERT Supplier (SupplierID) VALUES (@CDBD)
 
 insert Contact (ContactName, ContactPostalAddress, ContactWWW, ContactEmail, ContactPhone, ContactFax)
 values ('BIT Manufacturing Ltd.', 'Forth Street, Dunedin', 'bitmanf.tekotago.ac.nz', 'bitmanf@tekotago.ac.nz', '0800 SMARTMOVE', null)
-
+SET @BITManf = @@IDENTITY
+INSERT Supplier (SupplierID) VALUES (@BITManf)
 
 -- create components
 -- Note this script relies on you having captured the ContactID to insert into SupplierID
+SET IDENTITY_INSERT dbo.Component ON
 
 insert Component (ComponentID, ComponentName, ComponentDescription, SupplierID, ListPrice, TradePrice, TimeToFit, CategoryID)
 values (30901, 'BMS10', '10mm M6 ms bolt', @ABC, 0.20, 0.17, 0.5, dbo.getCategoryID('Fixings'))
@@ -81,9 +92,11 @@ values (30922, 'DESLAB', 'Designer labour', @BITManf, 54.00, 54.00, 0, dbo.getCa
 insert Component (ComponentID, ComponentName, ComponentDescription, SupplierID, ListPrice, TradePrice, TimeToFit, CategoryID)
 values (30923, 'APPLAB', 'Apprentice labour', @BITManf, 23.50, 23.50, 0, dbo.getCategoryID('Labour'))
 
+SET IDENTITY_INSERT dbo.Component OFF
 
-/*
+
 --create assemblies
+
 exec createAssembly  'SmallCorner.15', '15mm small corner'
 exec dbo.addSubComponent 'SmallCorner.15', 'BMS.5.15', 0.120
 exec dbo.addSubComponent 'SmallCorner.15', 'APPLAB', 0.33333
@@ -101,13 +114,3 @@ exec dbo.createAssembly 'CornerBrace.15', '15mm corner brace'
 exec dbo.addSubComponent 'CornerBrace.15', 'BMS.5.15', 0.090
 exec dbo.addSubComponent 'CornerBrace.15', 'BMS10', 2
 
-
-
---drop functions, views and sp
-drop proc createAssembly
-drop proc addSubComponent
-drop function dbo.getCategoryID
-drop function dbo.getAssemblySupplierID
-
-
-   END  */

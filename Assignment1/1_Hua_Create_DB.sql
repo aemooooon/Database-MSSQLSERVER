@@ -1,0 +1,135 @@
+USE [wangh21_IN705Assignment1]
+GO
+
+-- Delete all tables if the tables exists
+DROP TABLE IF EXISTS dbo.AssemblySubcomponent
+GO
+
+DROP TABLE IF EXISTS dbo.QuoteComponent
+GO
+
+DROP TABLE IF EXISTS dbo.Component
+GO
+
+DROP TABLE IF EXISTS dbo.Quote
+GO
+
+DROP TABLE IF EXISTS dbo.Category
+GO
+
+DROP TABLE IF EXISTS dbo.Supplier
+GO
+
+DROP TABLE IF EXISTS dbo.Customer
+GO
+
+DROP TABLE IF EXISTS dbo.Contact
+GO
+
+-- start create tables
+CREATE TABLE Category
+(
+	CategoryID INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
+	CategoryName NVARCHAR(20) NOT NULL
+)
+GO
+
+CREATE TABLE Contact
+(
+	ContactID INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
+	ContactName NVARCHAR(100) NOT NULL,
+	ContactPhone NVARCHAR(20) NOT NULL,
+	ContactFax NVARCHAR(20) NULL,
+	ContactMobilePhone NVARCHAR(20) NULL,
+	ContactEmail NVARCHAR(255) NULL,
+	ContactWWW NVARCHAR(255) NULL,
+	ContactPostalAddress NVARCHAR(255) NOT NULL
+)
+GO
+
+CREATE TABLE Supplier
+(
+	SupplierID INT PRIMARY KEY NOT NULL,
+	SupplierGST DECIMAL(2,2) DEFAULT 0.15 NOT NULL,
+	CONSTRAINT FK_Supplier_Contact FOREIGN KEY (SupplierID) REFERENCES Contact (ContactID)
+	ON UPDATE CASCADE 
+	ON DELETE CASCADE
+)
+GO
+
+CREATE TABLE Customer
+(
+	CustomerID INT PRIMARY KEY NOT NULL,
+	CONSTRAINT FK_Customer_Contact FOREIGN KEY (CustomerID) REFERENCES Contact (ContactID)
+	ON UPDATE CASCADE 
+	ON DELETE CASCADE
+)
+GO
+
+CREATE TABLE Component
+(
+	ComponentID INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
+	ComponentName NVARCHAR(100) NOT NULL,
+	ComponentDescription NVARCHAR(1000) NOT NULL,
+	TradePrice MONEY NOT NULL CHECK (TradePrice >= 0) DEFAULT 0,
+	ListPrice MONEY NOT NULL CHECK (ListPrice >= 0) DEFAULT 0,
+	TimeToFit DECIMAL CHECK (TimeToFit >= 0) NOT NULL DEFAULT 0,
+	CategoryID INT NOT NULL,
+	SupplierID INT NOT NULL,
+	CONSTRAINT FK_Component_Category FOREIGN KEY (CategoryID) REFERENCES Category (CategoryID)
+	ON UPDATE CASCADE 
+	ON DELETE CASCADE,
+	CONSTRAINT FK_Component_Supplier FOREIGN KEY (SupplierID) REFERENCES Supplier (SupplierID)
+	ON UPDATE CASCADE 
+	ON DELETE NO ACTION
+)
+GO
+
+CREATE TABLE Quote
+(
+	QuoteID INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
+	QuoteDescription NVARCHAR(1000) NOT NULL,
+	QuoteDate DATE NOT NULL,
+	QuotePrice MONEY NULL,
+	QuoteCompiler NVARCHAR(100) NOT NULL,
+	CustomerID INT NOT NULL,
+	CONSTRAINT FK_Quote_Customer FOREIGN KEY (CustomerID) REFERENCES Customer (CustomerID)
+	ON UPDATE CASCADE 
+	ON DELETE NO ACTION
+)
+GO
+
+CREATE TABLE QuoteComponent
+(
+	ComponentID INT NOT NULL,
+	QuoteID INT NOT NULL,
+	Quantity INT NOT NULL CHECK (Quantity >= 0) DEFAULT 0,
+	TradePrice MONEY NOT NULL CHECK (TradePrice >= 0) DEFAULT 0,
+	ListPrice MONEY NOT NULL CHECK (ListPrice >= 0) DEFAULT 0,
+	TimeToFit DECIMAL CHECK (TimeToFit >= 0) NOT NULL DEFAULT 0,
+	CONSTRAINT PK_ComponentID_QuoteID PRIMARY KEY(ComponentID, QuoteID),
+	CONSTRAINT FK_QuoteComponent_Quote FOREIGN KEY (QuoteID) REFERENCES Quote (QuoteID)
+	ON UPDATE CASCADE 
+	ON DELETE CASCADE,
+	CONSTRAINT FK_QuoteComponent_Component FOREIGN KEY (ComponentID) REFERENCES Component (ComponentID)
+	--ON UPDATE CASCADE
+	ON DELETE NO ACTION
+)
+GO
+
+CREATE TABLE AssemblySubcomponent
+(
+	AssemblyID INT NOT NULL,
+	SubcomponentID INT NOT NULL,
+	Quantity DECIMAL NOT NULL CHECK (Quantity >= 0) DEFAULT 0,
+	CONSTRAINT PK_AssemblyID_SubcomponentID PRIMARY KEY(AssemblyID, SubcomponentID),
+	CONSTRAINT CK_AssemblyID_ne_SubcomponentID CHECK (AssemblyID <> SubcomponentID),
+	CONSTRAINT FK_Subcomponent_Component FOREIGN KEY (SubcomponentID) REFERENCES Component (ComponentID)
+	ON UPDATE CASCADE,
+	--ON DELETE NO ACTION,
+	CONSTRAINT FK_Assembly_Component FOREIGN KEY (AssemblyID) REFERENCES Component (ComponentID)
+	--ON UPDATE CASCADE
+	ON DELETE NO ACTION
+)
+GO
+
