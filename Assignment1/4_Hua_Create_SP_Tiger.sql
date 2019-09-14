@@ -1,6 +1,10 @@
 USE [wangh21_IN705Assignment1]
 GO
 
+DROP PROC createCustomer
+DROP PROC createQuote
+DROP PROC addQuoteComponent
+GO
 
 CREATE PROC createCustomer(@name NVARCHAR(100),
     @phone NVARCHAR(20),
@@ -9,7 +13,7 @@ CREATE PROC createCustomer(@name NVARCHAR(100),
     @www NVARCHAR(255)=NULL,
     @fax NVARCHAR(20)=NULL,
     @mobilePhone NVARCHAR(20)=NULL,
-    @CustomerID INT OUTPUT
+    @customerID INT OUTPUT
 )
 AS
 BEGIN
@@ -17,8 +21,13 @@ BEGIN
         (ContactName, ContactPhone, ContactFax, ContactMobilePhone, ContactEmail, ContactWWW, ContactPostalAddress)
     VALUES
         (@name, @phone, @fax, @mobilePhone, @email, @www, @postalAddress)
-    SET @CustomerID = (@@IDENTITY)
+    SET @customerID = @@IDENTITY
+    INSERT INTO Customer
+        (CustomerID)
+    VALUES
+        (@customerID)
 END
+RETURN
 GO
 
 
@@ -37,7 +46,7 @@ BEGIN
         (QuoteDescription, QuoteDate, QuotePrice, QuoteCompiler, CustomerID)
     VALUES
         (@quoteDescription, @quoteDate, @quotePrice, @quoteCompiler, @customerID)
-    SET @quoteID = (@@IDENTITY)
+    SET @quoteID = @@IDENTITY
 END
 GO
 
@@ -51,9 +60,15 @@ BEGIN
     DECLARE @tradePrice MONEY
     DECLARE @listPrice MONEY
     DECLARE @timeToFit DECIMAL
-    SET @tradePrice = (SELECT TradePrice FROM Component WHERE ComponentID=@componentID)
-    SET @listPrice = (SELECT ListPrice FROM Component WHERE ComponentID=@componentID)
-    SET @timeToFit = (SELECT TimeToFit FROM Component WHERE ComponentID=@componentID)
+    SET @tradePrice = (SELECT TradePrice
+    FROM Component
+    WHERE ComponentID=@componentID)
+    SET @listPrice = (SELECT ListPrice
+    FROM Component
+    WHERE ComponentID=@componentID)
+    SET @timeToFit = (SELECT TimeToFit
+    FROM Component
+    WHERE ComponentID=@componentID)
 
     INSERT INTO QuoteComponent
         (ComponentID, QuoteID, Quantity, TradePrice, ListPrice, TimeToFit)

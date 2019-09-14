@@ -73,7 +73,7 @@ CREATE TABLE Component
 	ComponentDescription NVARCHAR(1000) NOT NULL,
 	TradePrice MONEY NOT NULL CHECK (TradePrice >= 0) DEFAULT 0,
 	ListPrice MONEY NOT NULL CHECK (ListPrice >= 0) DEFAULT 0,
-	TimeToFit DECIMAL CHECK (TimeToFit >= 0) NOT NULL DEFAULT 0,
+	TimeToFit DECIMAL(10,2) CHECK (TimeToFit >= 0) NOT NULL DEFAULT 0,
 	CategoryID INT NOT NULL,
 	SupplierID INT NOT NULL,
 	CONSTRAINT FK_Component_Category FOREIGN KEY (CategoryID) REFERENCES Category (CategoryID)
@@ -103,16 +103,16 @@ CREATE TABLE QuoteComponent
 (
 	ComponentID INT NOT NULL,
 	QuoteID INT NOT NULL,
-	Quantity INT NOT NULL CHECK (Quantity >= 0) DEFAULT 0,
+	Quantity DECIMAL(10,2) NOT NULL CHECK (Quantity >= 0) DEFAULT 0,
 	TradePrice MONEY NOT NULL CHECK (TradePrice >= 0) DEFAULT 0,
 	ListPrice MONEY NOT NULL CHECK (ListPrice >= 0) DEFAULT 0,
-	TimeToFit DECIMAL CHECK (TimeToFit >= 0) NOT NULL DEFAULT 0,
+	TimeToFit DECIMAL(10,2) CHECK (TimeToFit >= 0) NOT NULL DEFAULT 0,
 	CONSTRAINT PK_ComponentID_QuoteID PRIMARY KEY(ComponentID, QuoteID),
 	CONSTRAINT FK_QuoteComponent_Quote FOREIGN KEY (QuoteID) REFERENCES Quote (QuoteID)
 	ON UPDATE CASCADE 
 	ON DELETE CASCADE,
 	CONSTRAINT FK_QuoteComponent_Component FOREIGN KEY (ComponentID) REFERENCES Component (ComponentID)
-	--ON UPDATE CASCADE
+	ON UPDATE NO ACTION --?
 	ON DELETE NO ACTION
 )
 GO
@@ -121,14 +121,14 @@ CREATE TABLE AssemblySubcomponent
 (
 	AssemblyID INT NOT NULL,
 	SubcomponentID INT NOT NULL,
-	Quantity DECIMAL NOT NULL CHECK (Quantity >= 0) DEFAULT 0,
+	Quantity DECIMAL(10,2) NOT NULL CHECK (Quantity >= 0) DEFAULT 0,
 	CONSTRAINT PK_AssemblyID_SubcomponentID PRIMARY KEY(AssemblyID, SubcomponentID),
 	CONSTRAINT CK_AssemblyID_ne_SubcomponentID CHECK (AssemblyID <> SubcomponentID),
 	CONSTRAINT FK_Subcomponent_Component FOREIGN KEY (SubcomponentID) REFERENCES Component (ComponentID)
-	ON UPDATE CASCADE,
-	--ON DELETE NO ACTION,
+	ON UPDATE CASCADE
+	ON DELETE NO ACTION,
 	CONSTRAINT FK_Assembly_Component FOREIGN KEY (AssemblyID) REFERENCES Component (ComponentID)
-	--ON UPDATE CASCADE
+	ON UPDATE NO ACTION --?
 	ON DELETE NO ACTION
 )
 GO
