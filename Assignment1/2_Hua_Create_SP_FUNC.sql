@@ -43,7 +43,7 @@ END
 GO
 
 
-CREATE PROC createAssembly(@componentName NVARCHAR(100),
+CREATE OR ALTER PROC createAssembly(@componentName NVARCHAR(100),
 	@componentDescription NVARCHAR(1000))
 AS
 BEGIN
@@ -59,9 +59,9 @@ END
 GO
 
 
-CREATE PROC addSubComponent(@assemblyName NVARCHAR(100),
+CREATE OR ALTER PROC addSubComponent(@assemblyName NVARCHAR(100),
 	@subComponentName NVARCHAR(100),
-	@quantity INT)
+	@quantity DECIMAL(10,7))
 AS
 BEGIN
 	DECLARE @assemblyID INT

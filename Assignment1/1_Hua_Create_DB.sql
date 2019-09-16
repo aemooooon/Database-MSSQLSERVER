@@ -49,8 +49,9 @@ GO
 
 CREATE TABLE Supplier
 (
-	SupplierID INT PRIMARY KEY NOT NULL,
+	SupplierID INT NOT NULL,
 	SupplierGST DECIMAL(2,2) DEFAULT 0.15 NOT NULL,
+	CONSTRAINT PK_SupplierID PRIMARY KEY CLUSTERED (SupplierID),
 	CONSTRAINT FK_Supplier_Contact FOREIGN KEY (SupplierID) REFERENCES Contact (ContactID)
 	ON UPDATE CASCADE 
 	ON DELETE CASCADE
@@ -59,7 +60,8 @@ GO
 
 CREATE TABLE Customer
 (
-	CustomerID INT PRIMARY KEY NOT NULL,
+	CustomerID INT NOT NULL,
+	CONSTRAINT PK_CustomerID PRIMARY KEY CLUSTERED (CustomerID),
 	CONSTRAINT FK_Customer_Contact FOREIGN KEY (CustomerID) REFERENCES Contact (ContactID)
 	ON UPDATE CASCADE 
 	ON DELETE CASCADE
@@ -91,7 +93,7 @@ CREATE TABLE Quote
 	QuoteDescription NVARCHAR(1000) NOT NULL,
 	QuoteDate DATETIME NOT NULL,
 	QuotePrice MONEY NULL,
-	QuoteCompiler NVARCHAR(100) NOT NULL,
+	QuoteCompiler NVARCHAR(100) NOT NULL DEFAULT '',
 	CustomerID INT NOT NULL,
 	CONSTRAINT FK_Quote_Customer FOREIGN KEY (CustomerID) REFERENCES Customer (CustomerID)
 	ON UPDATE CASCADE 
@@ -103,11 +105,11 @@ CREATE TABLE QuoteComponent
 (
 	ComponentID INT NOT NULL,
 	QuoteID INT NOT NULL,
-	Quantity DECIMAL(10,2) NOT NULL CHECK (Quantity >= 0) DEFAULT 0,
+	Quantity FLOAT(8) NOT NULL CHECK (Quantity >= 0.0) DEFAULT 0.0,
 	TradePrice MONEY NOT NULL CHECK (TradePrice >= 0) DEFAULT 0,
 	ListPrice MONEY NOT NULL CHECK (ListPrice >= 0) DEFAULT 0,
 	TimeToFit DECIMAL(10,2) CHECK (TimeToFit >= 0) NOT NULL DEFAULT 0,
-	CONSTRAINT PK_ComponentID_QuoteID PRIMARY KEY(ComponentID, QuoteID),
+	CONSTRAINT PK_ComponentID_QuoteID PRIMARY KEY CLUSTERED (ComponentID, QuoteID),
 	CONSTRAINT FK_QuoteComponent_Quote FOREIGN KEY (QuoteID) REFERENCES Quote (QuoteID)
 	ON UPDATE CASCADE 
 	ON DELETE CASCADE,
@@ -121,8 +123,8 @@ CREATE TABLE AssemblySubcomponent
 (
 	AssemblyID INT NOT NULL,
 	SubcomponentID INT NOT NULL,
-	Quantity DECIMAL(10,2) NOT NULL CHECK (Quantity >= 0) DEFAULT 0,
-	CONSTRAINT PK_AssemblyID_SubcomponentID PRIMARY KEY(AssemblyID, SubcomponentID),
+	Quantity FLOAT(8) NOT NULL CHECK (Quantity >= 0.0) DEFAULT 0.0,
+	CONSTRAINT PK_AssemblyID_SubcomponentID PRIMARY KEY CLUSTERED (AssemblyID, SubcomponentID),
 	CONSTRAINT CK_AssemblyID_ne_SubcomponentID CHECK (AssemblyID <> SubcomponentID),
 	CONSTRAINT FK_Subcomponent_Component FOREIGN KEY (SubcomponentID) REFERENCES Component (ComponentID)
 	ON UPDATE CASCADE
