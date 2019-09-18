@@ -70,7 +70,7 @@ GO
 
 CREATE TABLE Component
 (
-	ComponentID INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
+	ComponentID INT PRIMARY KEY NOT NULL,
 	ComponentName NVARCHAR(100) NOT NULL,
 	ComponentDescription NVARCHAR(1000) NOT NULL,
 	TradePrice MONEY NOT NULL CHECK (TradePrice >= 0) DEFAULT 0,
@@ -105,7 +105,7 @@ CREATE TABLE QuoteComponent
 (
 	ComponentID INT NOT NULL,
 	QuoteID INT NOT NULL,
-	Quantity FLOAT(8) NOT NULL CHECK (Quantity >= 0.0) DEFAULT 0.0,
+	Quantity DECIMAL(15,8) NOT NULL CHECK (Quantity >= 0.0) DEFAULT 0.0,
 	TradePrice MONEY NOT NULL CHECK (TradePrice >= 0) DEFAULT 0,
 	ListPrice MONEY NOT NULL CHECK (ListPrice >= 0) DEFAULT 0,
 	TimeToFit DECIMAL(10,2) CHECK (TimeToFit >= 0) NOT NULL DEFAULT 0,
@@ -123,7 +123,7 @@ CREATE TABLE AssemblySubcomponent
 (
 	AssemblyID INT NOT NULL,
 	SubcomponentID INT NOT NULL,
-	Quantity FLOAT(8) NOT NULL CHECK (Quantity >= 0.0) DEFAULT 0.0,
+	Quantity DECIMAL(15,8) NOT NULL CHECK (Quantity >= 0.0) DEFAULT 0.0,
 	CONSTRAINT PK_AssemblyID_SubcomponentID PRIMARY KEY CLUSTERED (AssemblyID, SubcomponentID),
 	CONSTRAINT CK_AssemblyID_ne_SubcomponentID CHECK (AssemblyID <> SubcomponentID),
 	CONSTRAINT FK_Subcomponent_Component FOREIGN KEY (SubcomponentID) REFERENCES Component (ComponentID)

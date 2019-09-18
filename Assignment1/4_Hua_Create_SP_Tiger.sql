@@ -57,7 +57,7 @@ GO
 
 CREATE OR ALTER PROC addQuoteComponent(@quoteID INT,
     @componentID INT,
-    @quantity FLOAT(8)
+    @quantity DECIMAL(15,8)
 )
 AS
 BEGIN
@@ -83,96 +83,68 @@ END
 GO
 
 
-CREATE TRIGGER trig_cu_AssemblySubcomponent ON AssemblySubcomponent
-AFTER UPDATE
+
+-- Notes: To run this Trigger you have to delete ComponentID identity Constraint
+CREATE OR ALTER TRIGGER trig_cu_AssemblySubcomponent ON AssemblySubcomponent
+FOR UPDATE
 AS
+
+--SET NOCOUNT ON
 BEGIN
-	select * from Contact
+    UPDATE Component SET Component.ComponentID = (SELECT AssemblyID
+    FROM inserted)
+    FROM AssemblySubcomponent INNER JOIN deleted
+        ON AssemblySubcomponent.AssemblyID = deleted.AssemblyID
+
+    UPDATE Component SET Component.ComponentID = (SELECT SubcomponentID
+    FROM inserted)
+    FROM AssemblySubcomponent INNER JOIN deleted
+        ON AssemblySubcomponent.SubcomponentID = deleted.SubcomponentID
+
 END
 GO
 
 
-CREATE TRIGGER trigSupplierDelete ON Supplier
-FOR DELETE
+-- Notes: To run this Trigger you have to delete CONSTRAINT FK_Component_Supplier First
+CREATE OR ALTER TRIGGER trigSupplierDelete ON Supplier
+INSTEAD OF DELETE
 AS
 BEGIN
-	
-	DECLARE @XYZ INT
-	DECLARE @K INT
-	SET @XYZ = (SELECT SupplierID FROM inserted)
-	SET @K = (SELECT COUNT(*) FROM Component WHERE SupplierID=@XYZ)
-	IF @K >= 1
-	PRINT(@XYZ + ' HAS ' + @K + ' related components.')
+    DECLARE @XYZ INT
+    DECLARE @K INT
+    DECLARE @NAME NVARCHAR(100)
+    SET @XYZ = (SELECT SupplierID
+    FROM Supplier
+    WHERE SupplierID=(SELECT SupplierID
+    FROM deleted))
+    SET @K = (SELECT COUNT(ComponentID)
+    FROM Component
+    WHERE SupplierID=@XYZ)
+    SET @NAME = (SELECT ContactName
+    FROM Contact
+    WHERE ContactID=@XYZ)
+    PRINT(N'Supplier '+ @NAME + N' has ' + CAST(@K AS NVARCHAR) + N' related components.')
 END
 GO
+
+--delete from Supplier where SupplierID=1
+
 
 
 CREATE OR ALTER PROC updateAssemblyPrices
 AS
 BEGIN
-    DECLARE @ATP FLOAT(8)
-    DECLARE @ALP FLOAT(8)
-
-    DECLARE cursor1 CURSOR FOR 
-	SELECT *
-    FROM
-        (SELECT SUM(c.TradePrice) AS 'ATP', SUM(c.ListPrice) AS 'ALP'
-        FROM Component c JOIN AssemblySubcomponent a ON c.ComponentID=a.SubcomponentID
-        GROUP BY a.AssemblyID)
-	AS T1
-
-    OPEN cursor1
-
-    FETCH NEXT FROM cursor1 INTO @ATP,@ALP
-
-    WHILE @@FETCH_STATUS=0
-	BEGIN
-        print @ATP
-        PRINT @ALP
-        UPDATE Component 
-		SET TradePrice=@ATP, ListPrice=@ALP 
-		WHERE ComponentID IN
-        (SELECT AssemblyID
-        FROM AssemblySubcomponent
-        GROUP BY AssemblyID)
-        FETCH NEXT FROM cursor1 INTO @ATP,@ALP
-    END
-    CLOSE cursor1
-    DEALLOCATE cursor1
+    UPDATE Component 
+	SET TradePrice=T1.ATP, ListPrice=T1.ALP FROM
+        Component ct JOIN
+        (SELECT Tdata.AssemblyID, Tdata.ATP, Tdata.ALP
+        FROM
+            (SELECT a.AssemblyID, SUM(c.TradePrice) AS 'ATP', SUM(c.ListPrice) AS 'ALP'
+            FROM Component c JOIN AssemblySubcomponent a ON c.ComponentID=a.SubcomponentID
+            GROUP BY a.AssemblyID) AS Tdata
+	    ) AS T1 ON ct.ComponentID=T1.AssemblyID
 END
 GO
-
---BEGIN
---    DECLARE @i INT = 0;
-
---	DECLARE @myPrices TABLE
---	(
---        ATP FLOAT(8),
---        ALP FLOAT(8)
---	)
-
---    INSERT INTO @myPrices
---    SELECT top 1 SUM(c.TradePrice) AS 'ATP', SUM(c.ListPrice) AS 'ALP'
---    FROM Component c
---        JOIN AssemblySubcomponent a ON c.ComponentID=a.SubcomponentID
---    GROUP BY a.AssemblyID;
-
---    WHILE (@i<3)
---	BEGIN
---        UPDATE Component
---		SET TradePrice = (SELECT ATP
---        FROM @myPrices),
---        ListPrice =	(SELECT ALP
---        FROM @myPrices)
---        WHERE ComponentID IN
---        (SELECT DISTINCT AssemblyID
---        FROM AssemblySubcomponent
---        GROUP BY AssemblyID);
-
---        SET @i = @i + 1
---    END
-
---END
 
 
 CREATE OR ALTER PROC testCyclicAssembly(@assemblyID INT,
@@ -183,7 +155,7 @@ BEGIN
     FROM AssemblySubcomponent
     WHERE AssemblyID=(SELECT SubcomponentID
     FROM AssemblySubcomponent
-    where SubcomponentID=@assemblyID)) >= 1
+    WHERE SubcomponentID=@assemblyID)) >= 1
         SET @isCyclic = 1;
     ELSE
         SET @isCyclic = 0;
@@ -191,3 +163,7 @@ END
 RETURN @isCyclic
 GO
 
+--DECLARE @A INT
+--EXEC testCyclicAssembly 30801, @A output
+
+--print @A

@@ -96,7 +96,7 @@ VALUES
 
 -- create components
 -- Note this script relies on you having captured the ContactID to insert into SupplierID
-SET IDENTITY_INSERT dbo.Component ON
+--SET IDENTITY_INSERT dbo.Component ON
 
 insert Component
     (ComponentID, ComponentName, ComponentDescription, SupplierID, ListPrice, TradePrice, TimeToFit, CategoryID)
@@ -163,17 +163,17 @@ insert Component
 values
     (30923, 'APPLAB', 'Apprentice labour', @BITManf, 23.50, 23.50, 0, dbo.getCategoryID('Labour'))
 
-SET IDENTITY_INSERT dbo.Component OFF
+--SET IDENTITY_INSERT dbo.Component OFF
 
 
 --create assemblies
 
-exec createAssembly  'SmallCorner.15', '15mm small corner'
+exec createAssembly 30801, 'SmallCorner.15', '15mm small corner'
 exec dbo.addSubComponent 'SmallCorner.15', 'BMS.5.15', 0.120
 exec dbo.addSubComponent 'SmallCorner.15', 'APPLAB', 0.33333
 exec dbo.addSubComponent 'SmallCorner.15', '43', 0.0833333
 
-exec dbo.createAssembly 'SquareStrap.1000.15', '1000mm x 15mm square strap'
+exec dbo.createAssembly 30802, 'SquareStrap.1000.15', '1000mm x 15mm square strap'
 exec dbo.addSubComponent 'SquareStrap.1000.15', 'BMS.5.15', 4
 exec dbo.addSubComponent 'SquareStrap.1000.15', 'SmallCorner.15', 4
 exec dbo.addSubComponent 'SquareStrap.1000.15', 'APPLAB', 25
@@ -181,7 +181,7 @@ exec dbo.addSubComponent 'SquareStrap.1000.15', 'ARTLAB', 10
 exec dbo.addSubComponent 'SquareStrap.1000.15', '43', 0.185
 exec dbo.addSubComponent 'SquareStrap.1000.15', 'BMS10', 8
 
-exec dbo.createAssembly 'CornerBrace.15', '15mm corner brace'
+exec dbo.createAssembly 30803, 'CornerBrace.15', '15mm corner brace'
 exec dbo.addSubComponent 'CornerBrace.15', 'BMS.5.15', 0.090
 exec dbo.addSubComponent 'CornerBrace.15', 'BMS10', 2
 

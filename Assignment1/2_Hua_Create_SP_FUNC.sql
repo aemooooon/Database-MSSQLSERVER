@@ -43,7 +43,8 @@ END
 GO
 
 
-CREATE OR ALTER PROC createAssembly(@componentName NVARCHAR(100),
+CREATE OR ALTER PROC createAssembly(@componentID INT,
+	@componentName NVARCHAR(100),
 	@componentDescription NVARCHAR(1000))
 AS
 BEGIN
@@ -52,9 +53,9 @@ BEGIN
 	SET @categoryID = dbo.getCategoryID('Assembly')
 	SET @supplierID = dbo.getAssemblySupplierID()
 	INSERT INTO Component
-		(ComponentName,ComponentDescription,TradePrice,ListPrice,TimeToFit,CategoryID,SupplierID)
+		(ComponentID, ComponentName,ComponentDescription,TradePrice,ListPrice,TimeToFit,CategoryID,SupplierID)
 	VALUES
-		(@componentName, @componentDescription, 0, 0, 0, @categoryID, @supplierID)
+		(@componentID, @componentName, @componentDescription, 0, 0, 0, @categoryID, @supplierID)
 END
 GO
 
