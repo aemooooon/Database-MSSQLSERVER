@@ -62,7 +62,7 @@ GO
 
 CREATE OR ALTER PROC addSubComponent(@assemblyName NVARCHAR(100),
 	@subComponentName NVARCHAR(100),
-	@quantity DECIMAL(10,7))
+	@quantity DECIMAL(15,8))
 AS
 BEGIN
 	DECLARE @assemblyID INT

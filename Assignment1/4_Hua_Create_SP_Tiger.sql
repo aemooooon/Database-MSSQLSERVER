@@ -84,7 +84,7 @@ GO
 
 
 
--- Notes: To run this Trigger you have to delete ComponentID identity Constraint
+-- Notes: ComponentID identity Constraint
 CREATE OR ALTER TRIGGER trig_cu_AssemblySubcomponent ON AssemblySubcomponent
 FOR UPDATE
 AS
@@ -151,11 +151,27 @@ CREATE OR ALTER PROC testCyclicAssembly(@assemblyID INT,
     @isCyclic INT OUTPUT)
 AS
 BEGIN
-    IF (SELECT COUNT(AssemblyID)
+    DECLARE @tempT table(
+        AssemblyID int,
+        SubcomponentID int
+    )
+
+    INSERT @tempT (AssemblyID, SubcomponentID)
+    SELECT AssemblyID, SubcomponentID
     FROM AssemblySubcomponent
-    WHERE AssemblyID=(SELECT SubcomponentID
-    FROM AssemblySubcomponent
-    WHERE SubcomponentID=@assemblyID)) >= 1
+    WHERE AssemblyID = @assemblyID
+
+    WHILE @@ROWCOUNT >0
+    BEGIN
+        INSERT @tempT (AssemblyID, SubcomponentID)
+        SELECT a.AssemblyID, a.SubcomponentID
+        FROM @tempT t
+        JOIN AssemblySubcomponent a ON a.AssemblyID = t.SubcomponentID
+        WHERE a.AssemblyID NOT IN (SELECT AssemblyID FROM @tempT)
+    END
+
+	
+    IF (SELECT COUNT(*) FROM @tempT WHERE SubcomponentID=@assemblyID) > 0
         SET @isCyclic = 1;
     ELSE
         SET @isCyclic = 0;
@@ -163,7 +179,12 @@ END
 RETURN @isCyclic
 GO
 
+--SET NOCOUNT ON
 --DECLARE @A INT
---EXEC testCyclicAssembly 30801, @A output
-
+--EXEC testCyclicAssembly 30803, @A output
 --print @A
+--SET NOCOUNT OFF
+
+-- To insert new line for test, delete constraint first ne
+--INSERT INTO AssemblySubcomponent (AssemblyID,SubcomponentID) VALUES (30801,30801)
+--INSERT INTO AssemblySubcomponent (AssemblyID,SubcomponentID) VALUES (30901,30803)
