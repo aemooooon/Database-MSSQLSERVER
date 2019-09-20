@@ -6,6 +6,7 @@ DROP PROC createQuote
 DROP PROC addQuoteComponent
 DROP PROC updateAssemblyPrices
 DROP PROC testCyclicAssembly
+
 GO
 
 CREATE OR ALTER PROC createCustomer(@name NVARCHAR(100),
@@ -83,26 +84,45 @@ END
 GO
 
 
-
--- Notes: ComponentID identity Constraint
-CREATE OR ALTER TRIGGER trig_cu_AssemblySubcomponent ON AssemblySubcomponent
-FOR UPDATE
+CREATE OR ALTER TRIGGER trig_p_c_AssemblySubcomponent ON Component
+AFTER UPDATE
 AS
-
---SET NOCOUNT ON
 BEGIN
-    UPDATE Component SET Component.ComponentID = (SELECT AssemblyID
-    FROM inserted)
-    FROM AssemblySubcomponent INNER JOIN deleted
-        ON AssemblySubcomponent.AssemblyID = deleted.AssemblyID
+	if UPDATE(ComponentID)
+		BEGIN
+			DECLARE @newID INT=(SELECT ComponentID FROM inserted)
 
-    UPDATE Component SET Component.ComponentID = (SELECT SubcomponentID
-    FROM inserted)
-    FROM AssemblySubcomponent INNER JOIN deleted
-        ON AssemblySubcomponent.SubcomponentID = deleted.SubcomponentID
+			UPDATE AssemblySubcomponent SET AssemblySubcomponent.AssemblyID = @newID
+			FROM AssemblySubcomponent JOIN deleted
+				ON AssemblySubcomponent.AssemblyID = deleted.ComponentID
 
+			UPDATE AssemblySubcomponent SET AssemblySubcomponent.SubcomponentID = @newID
+			FROM AssemblySubcomponent JOIN deleted
+				ON AssemblySubcomponent.SubcomponentID = deleted.ComponentID
+
+			UPDATE QuoteComponent SET QuoteComponent.ComponentID = @newID
+			FROM QuoteComponent JOIN deleted
+				ON QuoteComponent.ComponentID = deleted.ComponentID
+
+		END
 END
 GO
+
+--update Component set ComponentID=30999 where ComponentID=30934
+--GO
+
+--update Component set ComponentID=30934 where ComponentID=30999
+--GO
+
+--select * from Component;
+--go
+
+--select * from AssemblySubcomponent;
+--go
+
+--select * from QuoteComponent;
+--go
+
 
 
 -- Notes: To run this Trigger you have to delete CONSTRAINT FK_Component_Supplier First
@@ -128,6 +148,7 @@ END
 GO
 
 --delete from Supplier where SupplierID=1
+--select * from Supplier join Contact on Supplier.SupplierID=Contact.ContactID join Component on Component.SupplierID=Supplier.SupplierID
 
 
 
@@ -146,6 +167,9 @@ BEGIN
 END
 GO
 
+--exec dbo.updateAssemblyPrices
+--go
+
 
 CREATE OR ALTER PROC testCyclicAssembly(@assemblyID INT,
     @isCyclic INT OUTPUT)
@@ -156,22 +180,27 @@ BEGIN
         SubcomponentID int
     )
 
-    INSERT @tempT (AssemblyID, SubcomponentID)
+    INSERT @tempT
+        (AssemblyID, SubcomponentID)
     SELECT AssemblyID, SubcomponentID
     FROM AssemblySubcomponent
     WHERE AssemblyID = @assemblyID
 
     WHILE @@ROWCOUNT >0
     BEGIN
-        INSERT @tempT (AssemblyID, SubcomponentID)
+        INSERT @tempT
+            (AssemblyID, SubcomponentID)
         SELECT a.AssemblyID, a.SubcomponentID
         FROM @tempT t
-        JOIN AssemblySubcomponent a ON a.AssemblyID = t.SubcomponentID
-        WHERE a.AssemblyID NOT IN (SELECT AssemblyID FROM @tempT)
+            JOIN AssemblySubcomponent a ON a.AssemblyID = t.SubcomponentID
+        WHERE a.AssemblyID NOT IN (SELECT AssemblyID
+        FROM @tempT)
     END
 
-	
-    IF (SELECT COUNT(*) FROM @tempT WHERE SubcomponentID=@assemblyID) > 0
+
+    IF (SELECT COUNT(*)
+    FROM @tempT
+    WHERE SubcomponentID=@assemblyID) > 0
         SET @isCyclic = 1;
     ELSE
         SET @isCyclic = 0;
@@ -181,10 +210,10 @@ GO
 
 --SET NOCOUNT ON
 --DECLARE @A INT
---EXEC testCyclicAssembly 30803, @A output
+--EXEC testCyclicAssembly 30936, @A output
 --print @A
 --SET NOCOUNT OFF
 
--- To insert new line for test, delete constraint first ne
---INSERT INTO AssemblySubcomponent (AssemblyID,SubcomponentID) VALUES (30801,30801)
---INSERT INTO AssemblySubcomponent (AssemblyID,SubcomponentID) VALUES (30901,30803)
+-- --To insert new line for test, delete constraint first ne
+--INSERT INTO AssemblySubcomponent (AssemblyID,SubcomponentID) VALUES (30901,30936)
+--INSERT INTO AssemblySubcomponent (AssemblyID,SubcomponentID) VALUES (30934,30934)
