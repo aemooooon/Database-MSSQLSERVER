@@ -1,0 +1,12 @@
+
+A session connected to another database might have an open transaction that also affects your database - sp_who2 will only show one database. It could also be something as simple as Object Explorer or Object Explorer Details open in SSMS, which again would only show one database in sp_who2.
+
+Don't bother trying to find the session that is responsible; just kill them all with one statement (and make sure it isn't your copy of SSMS that is connected, e.g. another query window, Object Explorer, etc.):
+
+USE master;
+GO
+ALTER DATABASE dbname SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+GO
+Now you will be able to drop it, and do that using DDL, not the UI:
+
+DROP DATABASE dbname;
